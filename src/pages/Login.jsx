@@ -1,44 +1,83 @@
-import React, {useState} from "react";
-import {Button, Container, Typography, TextField} from "@mui/material";
-import {useNavigate} from "react-router-dom";
-
+import React, { useState } from "react";
+import {
+  Button,
+  Container,
+  Typography,
+  TextField,
+  Box,
+  Link as MuiLink,
+  Alert
+} from "@mui/material";
+import { useNavigate, Link } from "react-router-dom";
 
 const Login = () => {
-    const[username, setUsername] = useState("");
-    const[password, setPassword] = useState("");
-    const navigate = useNavigate();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-    const handleLogin = () => {
-        if(username) {
-            localStorage.setItem("user", username);
-            localStorage.setItem("pass", password);
-            //encrypt password
-            navigate("/Home");
-        }
-    };
+  const handleLogin = () => {
+    if (!username || !password) {
+      setError("Please enter both username and password.");
+      return;
+    }
 
-    return(
-        <Container maxWidth="sm" sx={{mt:10, mb:10}}>
-            <Typography variant="h4" gutterBottom></Typography>
-            Login
-            <TextField 
-            fullWidth 
-            label="Username"
-            onChange={e => setUsername(e.target.value)}
-            />
-            <TextField 
-            fullWidth
-            label="Password" 
-            type="password"
-            onChange={e => setPassword(e.target.value)}
-            />
-            <Button 
-            fullWidth
-            variant="contained" 
-            sx={{mt:2}} 
-            onClick={handleLogin}
-            >Login</Button>
-        </Container>
-    );
+    // Save to localStorage (in real apps, use secure methods)
+    localStorage.setItem("user", username);
+    localStorage.setItem("pass", password);
+
+    // Clear error and navigate
+    setError("");
+    navigate("/Home");
+  };
+
+  return (
+    <Container maxWidth="sm" sx={{ mt: 10, mb: 10 }}>
+      <Typography variant="h4" gutterBottom>
+        Login
+      </Typography>
+
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
+
+      <TextField
+        fullWidth
+        label="Username"
+        value={username}
+        onChange={e => setUsername(e.target.value)}
+        sx={{ mb: 2 }}
+      />
+      <TextField
+        fullWidth
+        label="Password"
+        type="password"
+        value={password}
+        onChange={e => setPassword(e.target.value)}
+        sx={{ mb: 2 }}
+      />
+
+      <Button
+        fullWidth
+        variant="contained"
+        sx={{ mb: 2 }}
+        onClick={handleLogin}
+      >
+        Login
+      </Button>
+
+      <Box textAlign="center">
+        <Typography variant="body2">
+          Don't have an account?{" "}
+          <MuiLink component={Link} to="/register">
+            Register here
+          </MuiLink>
+        </Typography>
+      </Box>
+    </Container>
+  );
 };
+
 export default Login;

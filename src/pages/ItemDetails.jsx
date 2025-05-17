@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { Box, Typography, Button, Grid } from "@mui/material";
 
-// Import the same product data or move this to a shared file
+// Sample product list with prices
 const products = [
   {
     id: 1,
@@ -11,6 +11,7 @@ const products = [
     description: "Made from plastic bottles collected from the ocean.",
     image: "/images/01.jpg",
     category: "Men's Clothing",
+    price: 25,
   },
   {
     id: 2,
@@ -18,30 +19,52 @@ const products = [
     description: "Soft, breathable hoodie made from 100% organic cotton.",
     image: "/images/02.png",
     category: "Men's Clothing",
+    price: 40,
   },
   {
     id: 3,
-    title: "Organic Cotton Hoodie",
-    description: "Soft, breathable hoodie made from 100% organic cotton.",
-    image: "/images/02.png",
+    title: "Bamboo Fiber Shorts",
+    description: "Eco-friendly and antibacterial material.",
+    image: "/images/03.png",
     category: "Men's Clothing",
+    price: 30,
   },
   {
     id: 4,
-    title: "Organic Cotton Hoodie",
-    description: "Soft, breathable hoodie made from 100% organic cotton.",
-    image: "/images/02.png",
+    title: "Mushroom Leather Jacket",
+    description: "Innovative jacket made from mushroom roots.",
+    image: "/images/04.png",
     category: "Men's Clothing",
+    price: 70,
   },
 ];
 
 const ItemDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const product = products.find((p) => p.id === parseInt(id));
-
   const [mainImage, setMainImage] = useState(product?.image || "");
 
   if (!product) return <p>Product not found</p>;
+
+  const handleAddToCart = () => {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const existing = cart.find((item) => item.id === product.id);
+
+    if (existing) {
+      existing.quantity += 1;
+    } else {
+      cart.push({ ...product, quantity: 1 });
+    }
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+    alert("Item added to cart!");
+  };
+
+  const handleBuyNow = () => {
+    localStorage.setItem("cart", JSON.stringify([{ ...product, quantity: 1 }]));
+    navigate("/payment");
+  };
 
   return (
     <>
@@ -72,6 +95,7 @@ const ItemDetails = () => {
               ))}
             </Box>
           </Grid>
+
           <Grid item xs={12} md={6}>
             <Typography variant="h4" fontWeight="bold" gutterBottom>
               {product.title}
@@ -82,11 +106,15 @@ const ItemDetails = () => {
             <Typography variant="body1" paragraph>
               {product.description}
             </Typography>
+            <Typography variant="h6" color="primary">
+              Price: ${product.price}
+            </Typography>
+
             <Box sx={{ display: "flex", gap: 2, mt: 3 }}>
-              <Button variant="contained" color="success">
+              <Button variant="contained" color="success" onClick={handleAddToCart}>
                 Add to Cart
               </Button>
-              <Button variant="outlined" color="primary">
+              <Button variant="outlined" color="primary" onClick={handleBuyNow}>
                 Buy Now
               </Button>
             </Box>

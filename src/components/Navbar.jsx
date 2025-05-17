@@ -1,5 +1,10 @@
-import React, { useState } from 'react';
-import { AppBar, Toolbar, Typography, IconButton, Avatar, Tooltip, InputBase, Box, Drawer, List, ListItem, ListItemText, Button, Menu, MenuItem } from "@mui/material";
+// Add at the top with other imports
+import React, { useState, useEffect } from 'react';
+import {
+  AppBar, Toolbar, Typography, IconButton, Avatar, Tooltip,
+  InputBase, Box, Drawer, List, ListItem, ListItemText,
+  Button, Menu, MenuItem
+} from "@mui/material";
 import { styled, alpha } from '@mui/material/styles';
 import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from '@mui/icons-material/Search';
@@ -10,6 +15,7 @@ const Navbar = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const username = localStorage.getItem('user') || null;
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
 
   const toggleDrawer = (open) => () => {
     setDrawerOpen(open);
@@ -39,6 +45,12 @@ const Navbar = () => {
     navigate('/shopping-bag');
   };
 
+  const handleSearchSubmit = (e) => {
+    if (e.key === 'Enter' && searchQuery.trim() !== '') {
+      navigate(`/Products?search=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
   const menuItems = [
     { label: 'Home', link: '/home' },
     { label: 'Products', link: '/Products' },
@@ -52,10 +64,10 @@ const Navbar = () => {
         <Toolbar>
 
           {/* Mobile Hamburger */}
-          <IconButton 
-            edge="start" 
-            color="inherit" 
-            aria-label="menu" 
+          <IconButton
+            edge="start"
+            color="inherit"
+            aria-label="menu"
             onClick={toggleDrawer(true)}
             sx={{ display: { xs: 'flex', md: 'none' } }}
           >
@@ -75,6 +87,13 @@ const Navbar = () => {
                 {item.label}
               </Button>
             ))}
+            <Button
+              onClick={() => navigate('/cart')}
+              color="inherit"
+              sx={{ textTransform: 'none' }}
+            >
+              View Cart
+            </Button>
           </Box>
 
           {/* Search Bar */}
@@ -105,6 +124,9 @@ const Navbar = () => {
             </Box>
             <InputBase
               placeholder="Search…"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={handleSearchSubmit}
               sx={{
                 color: 'inherit',
                 paddingLeft: '40px',
@@ -130,9 +152,9 @@ const Navbar = () => {
             onClick={handleMenuClose}
           >
             {username ? [
-                <MenuItem onClick={handleShoppingBag}>Shopping Bag</MenuItem>,
-                <MenuItem onClick={handleLogout}>Logout</MenuItem>
-             ] : (
+              <MenuItem onClick={handleShoppingBag}>Shopping Bag</MenuItem>,
+              <MenuItem onClick={handleLogout}>Logout</MenuItem>
+            ] : (
               <MenuItem onClick={handleLogin}>Login</MenuItem>
             )}
           </Menu>
@@ -154,8 +176,8 @@ const Navbar = () => {
         >
           <List>
             {menuItems.map((item, index) => (
-              <ListItem 
-                button 
+              <ListItem
+                button
                 key={index}
                 component={RouterLink}
                 to={item.link}
@@ -163,6 +185,9 @@ const Navbar = () => {
                 <ListItemText primary={item.label} />
               </ListItem>
             ))}
+            <ListItem button component={RouterLink} to="/cart">
+              <ListItemText primary="View Cart" />
+            </ListItem>
           </List>
         </Box>
       </Drawer>
