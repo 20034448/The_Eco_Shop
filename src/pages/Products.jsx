@@ -48,7 +48,7 @@ const Products = () => {
   return (
     <>
      <Navbar />
-     <Box sx={{ p: 2 }}>
+     <Box>
      <Card sx={{ mb: 0.5, mt: 2 }}>
        <CardContent>
          <Typography variant="h5">The Eco Shop</Typography>
