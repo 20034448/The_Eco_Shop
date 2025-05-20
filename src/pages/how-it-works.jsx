@@ -35,7 +35,7 @@ const HowItWorks = () => {
     <>
       <Navbar />
       <Box sx={{ width: '100%', mx: 'auto' }}>
-      <Box sx={{ p: 2 }}>
+      <Box>
         <Card sx={{ mb: 0.5, mt: 2 }}>
           <CardContent>
             <Typography variant="h5">How It Works</Typography>
