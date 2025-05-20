@@ -3,6 +3,7 @@ import { Box, Typography, Link } from '@mui/material';
 
 const Footer = () => {
   return (
+    <Box sx={{ width: '100vw', position: 'relative', left: '50%', transform: 'translateX(-50%)' }}>
     <Box
       component="footer"
       sx={{
@@ -41,6 +42,7 @@ const Footer = () => {
           </Box>
         </Box>
     </Box>
+      </Box>
   );
 };
 
