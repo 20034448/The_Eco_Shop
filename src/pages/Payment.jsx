@@ -10,11 +10,12 @@ import {
   Divider
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import Navbar from '../components/Navbar'; // Make sure this path is correct
 
 const Payment = () => {
   const navigate = useNavigate();
 
-  // ✅ Get actual cart from localStorage
+  // ✅ Get cart from localStorage
   const cartItems = JSON.parse(localStorage.getItem("cart")) || [];
 
   const total = cartItems.reduce(
@@ -67,102 +68,108 @@ const Payment = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validate()) {
-      alert(`Payment of $${total} successful!`);
-      localStorage.removeItem('cart'); // clear cart after payment
+      alert(`Payment of €${total.toFixed(2)} successful!`);
+      localStorage.removeItem('cart'); // Clear cart after payment
       navigate('/');
     }
   };
 
   return (
-    <Container maxWidth="sm">
-      <Paper elevation={4} sx={{ mt: 8, p: 4, borderRadius: 3 }}>
-        <Typography variant="h5" align="center" gutterBottom>
-          Review & Payment
-        </Typography>
+    <>
+      <Navbar />
+      <Container maxWidth="sm">
+        <Paper elevation={4} sx={{ mt: 8, p: 4, borderRadius: 3 }}>
+          <Typography variant="h5" align="center" gutterBottom>
+            Review & Payment
+          </Typography>
 
-        {/* 🛒 Cart Summary */}
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="h6">Cart Summary</Typography>
-          <Divider sx={{ my: 1 }} />
-          {cartItems.length === 0 ? (
-            <Typography>No items in cart.</Typography>
-          ) : (
-            <>
-              {cartItems.map((item) => (
-                <Box key={item.id} sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                  <Typography>{item.title || item.name} × {item.quantity}</Typography>
-                  <Typography>${(item.price * item.quantity).toFixed(2)}</Typography>
+          {/* 🛒 Cart Summary */}
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="h6">Cart Summary</Typography>
+            <Divider sx={{ my: 1 }} />
+            {cartItems.length === 0 ? (
+              <Typography>No items in cart.</Typography>
+            ) : (
+              <>
+                {cartItems.map((item, index) => (
+                  <Box
+                    key={`${item.id}-${index}`}
+                    sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}
+                  >
+                    <Typography>{item.title || item.name} × {item.quantity}</Typography>
+                    <Typography>€{(item.price * item.quantity).toFixed(2)}</Typography>
+                  </Box>
+                ))}
+                <Divider sx={{ my: 1 }} />
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
+                  <Typography>Total:</Typography>
+                  <Typography>€{total.toFixed(2)}</Typography>
                 </Box>
-              ))}
-              <Divider sx={{ my: 1 }} />
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
-                <Typography>Total:</Typography>
-                <Typography>${total.toFixed(2)}</Typography>
-              </Box>
-            </>
-          )}
-        </Box>
+              </>
+            )}
+          </Box>
 
-        {/* 💳 Payment Form */}
-        <Box component="form" onSubmit={handleSubmit}>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <TextField
-                name="cardName"
-                label="Name on Card"
-                fullWidth
-                value={form.cardName}
-                onChange={handleChange}
-                error={!!errors.cardName}
-                helperText={errors.cardName}
-              />
+          {/* 💳 Payment Form */}
+          <Box component="form" onSubmit={handleSubmit}>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <TextField
+                  name="cardName"
+                  label="Name on Card"
+                  fullWidth
+                  value={form.cardName}
+                  onChange={handleChange}
+                  error={!!errors.cardName}
+                  helperText={errors.cardName}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  name="cardNumber"
+                  label="Card Number"
+                  fullWidth
+                  value={form.cardNumber}
+                  onChange={handleChange}
+                  error={!!errors.cardNumber}
+                  helperText={errors.cardNumber}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  name="expiry"
+                  label="Expiry (MM/YY)"
+                  fullWidth
+                  value={form.expiry}
+                  onChange={handleChange}
+                  error={!!errors.expiry}
+                  helperText={errors.expiry}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  name="cvv"
+                  label="CVV"
+                  fullWidth
+                  value={form.cvv}
+                  onChange={handleChange}
+                  error={!!errors.cvv}
+                  helperText={errors.cvv}
+                />
+              </Grid>
             </Grid>
-            <Grid item xs={12}>
-              <TextField
-                name="cardNumber"
-                label="Card Number"
-                fullWidth
-                value={form.cardNumber}
-                onChange={handleChange}
-                error={!!errors.cardNumber}
-                helperText={errors.cardNumber}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <TextField
-                name="expiry"
-                label="Expiry (MM/YY)"
-                fullWidth
-                value={form.expiry}
-                onChange={handleChange}
-                error={!!errors.expiry}
-                helperText={errors.expiry}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <TextField
-                name="cvv"
-                label="CVV"
-                fullWidth
-                value={form.cvv}
-                onChange={handleChange}
-                error={!!errors.cvv}
-                helperText={errors.cvv}
-              />
-            </Grid>
-          </Grid>
 
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 4, backgroundColor: '#1976d2', fontWeight: 'bold' }}
-          >
-            Pay ${total.toFixed(2)}
-          </Button>
-        </Box>
-      </Paper>
-    </Container>
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 4, backgroundColor: '#1976d2', fontWeight: 'bold' }}
+            >
+              Pay €{total.toFixed(2)}
+            </Button>
+          </Box>
+        </Paper>
+      </Container>
+    </>
   );
 };
 
