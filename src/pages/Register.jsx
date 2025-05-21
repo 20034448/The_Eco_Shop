@@ -1,11 +1,6 @@
-// File: src/pages/Register.jsx
-// This is a simple registration form using React and Material-UI.
-
-
 import React, { useState } from 'react';
-import {Container,TextField,Button,Typography,Paper,Box,Grid} from '@mui/material';
+import { Container, TextField, Button, Typography, Paper, Box, Grid } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import Footer from "../components/Footer";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -67,14 +62,22 @@ const Register = () => {
     e.preventDefault();
 
     if (validate()) {
-      console.log('User registered:', form);
+      const userProfile = {
+        name: form.name,
+        phone: form.phone,
+        email: form.email,
+        password: form.password,
+      };
+
+      // Save user profile to localStorage
+      localStorage.setItem('profile', JSON.stringify(userProfile));
+
       alert('Account created successfully!');
-      navigate('/'); // Redirect to login page
+      navigate('/login'); // Redirect to login page (adjust route if needed)
     }
   };
 
   return (
-    <>
     <Container maxWidth="sm">
       <Paper elevation={4} sx={{ mt: 10, p: 4, borderRadius: 3 }}>
         <Typography variant="h5" align="center" gutterBottom>
@@ -162,8 +165,6 @@ const Register = () => {
         </Box>
       </Paper>
     </Container>
-    <Footer/>
-    </>
   );
 };
 

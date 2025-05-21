@@ -1,80 +1,94 @@
-import React, { useState } from "react";
-import {
-  Button,
-  Container,
-  Typography,
-  TextField,
-  Box,
-  Link as MuiLink,
-  Alert
-} from "@mui/material";
-import { useNavigate, Link } from "react-router-dom";
-import Footer from "../components/Footer";
+import React, { useState } from 'react';
+import { Container, TextField, Button, Typography, Paper, Box, Grid, Alert, Link as MuiLink } from '@mui/material';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Login = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-    //Validation needed
-    // Save to localStorage (in real apps, use secure methods)
-    localStorage.setItem("user", username);
-    localStorage.setItem("pass", password);
-    navigate('/home');
-    
+  const [form, setForm] = useState({
+    email: '',
+    password: ''
+  });
+
+  const [error, setError] = useState('');
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+    setError('');
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const stored = JSON.parse(localStorage.getItem('profile'));
+
+    if (
+      stored &&
+      form.email === stored.email &&
+      form.password === stored.password
+    ) {
+      localStorage.setItem('user', JSON.stringify(stored));
+      navigate('/home'); // redirect after login
+    } else {
+      setError('Invalid email or password.');
+    }
   };
 
   return (
-    <>
-    <Container maxWidth="sm" sx={{ mt: 10, mb: 10 }}>
-      <Typography variant="h4" gutterBottom>
-        Login
-      </Typography>
-
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      )}
-
-      <TextField
-        fullWidth
-        label="Username"
-        value={username}
-        onChange={e => setUsername(e.target.value)}
-        sx={{ mb: 2 }}
-      />
-      <TextField
-        fullWidth
-        label="Password"
-        type="password"
-        value={password}
-        onChange={e => setPassword(e.target.value)}
-        sx={{ mb: 2 }}
-      />
-
-      <Button
-        fullWidth
-        variant="contained"
-        sx={{ mb: 2 }}
-        onClick={handleLogin}
-      >
-        Login
-      </Button>
-
-      <Box textAlign="center">
-        <Typography variant="body2">
-          Don't have an account?{" "}
-          <MuiLink component={Link} to="/register">
-            Register here
-          </MuiLink>
+    <Container maxWidth="sm">
+      <Paper elevation={4} sx={{ mt: 10, p: 4, borderRadius: 3 }}>
+        <Typography variant="h5" align="center" gutterBottom>
+          Login to Your Account
         </Typography>
-      </Box>
+
+        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <TextField
+                label="Email"
+                name="email"
+                type="email"
+                fullWidth
+                value={form.email}
+                onChange={handleChange}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                label="Password"
+                name="password"
+                type="password"
+                fullWidth
+                value={form.password}
+                onChange={handleChange}
+              />
+            </Grid>
+            {error && (
+              <Grid item xs={12}>
+                <Alert severity="error">{error}</Alert>
+              </Grid>
+            )}
+          </Grid>
+
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 4, backgroundColor: '#1976d2', fontWeight: 'bold' }}
+          >
+            Login
+          </Button>
+
+          {/* Aqui vem o texto/link para registro */}
+          <Typography variant="body2" align="center" sx={{ mt: 3 }}>
+            Don't have an account?{' '}
+            <MuiLink component={Link} to="/register" underline="hover" sx={{ cursor: 'pointer' }}>
+              Click here to register
+            </MuiLink>
+          </Typography>
+        </Box>
+      </Paper>
     </Container>
-    <Footer/>
-    </>
   );
 };
 

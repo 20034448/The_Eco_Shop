@@ -1,9 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import {
-  AppBar, Toolbar, Typography, IconButton, Avatar, Tooltip,
-  InputBase, Box, Drawer, List, ListItem, ListItemText,
-  Button, Menu, MenuItem
-} from "@mui/material";
+import React, { useState } from 'react';
+import { AppBar, Toolbar, Typography, IconButton, Avatar, Tooltip, InputBase, Box, Drawer, List, ListItem, ListItemText, Button, Menu, MenuItem } from "@mui/material";
 import { styled, alpha } from '@mui/material/styles';
 import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from '@mui/icons-material/Search';
@@ -12,31 +8,13 @@ import { Link as RouterLink, useNavigate } from 'react-router-dom';
 const Navbar = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
-  const username = localStorage.getItem('user') || null;
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState('');
-  
-  const [visible, setVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-  
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        // Scrolling down
-        setVisible(false);
-      } else {
-        // Scrolling up
-        setVisible(true);
-      }
-  
-      setLastScrollY(currentScrollY);
-    };
-  
-    window.addEventListener('scroll', handleScroll);
-  
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
+
+  // Pega o usuário do localStorage e o nome completo
+  const userObj = JSON.parse(localStorage.getItem('user'));
+  const fullName = userObj?.fullName || '';
+  // Pega a primeira letra do primeiro nome, maiúscula
+  const firstLetter = fullName ? fullName.trim().charAt(0).toUpperCase() : 'L';
 
   const toggleDrawer = (open) => () => {
     setDrawerOpen(open);
@@ -53,12 +31,12 @@ const Navbar = () => {
   const handleLogout = () => {
     localStorage.clear();
     handleMenuClose();
-    navigate('/home');
+    navigate('/Login');
   };
 
-  const handleRedirectLogin = () => {
-    handleMenuClose()
-    navigate('/Login')
+  const handleLogin = () => {
+    handleMenuClose();
+    navigate('/Login');
   };
 
   const handleCart = () => {
@@ -66,29 +44,28 @@ const Navbar = () => {
     navigate('/Cart');
   };
 
-  const handleSearchSubmit = (e) => {
-    if (e.key === 'Enter' && searchQuery.trim() !== '') {
-      navigate(`/Products?search=${encodeURIComponent(searchQuery.trim())}`);
-    }
+  const handleProfile = () => {
+    handleMenuClose();
+    navigate('/Profile');
   };
 
   const menuItems = [
     { label: 'Home', link: '/home' },
-    { label: 'Products', link: '/Products' },
+    { label: 'Products', link: '/products' },
     { label: 'How It Works', link: '/how-it-works' },
     { label: 'FAQs', link: '/faqs' },
   ];
 
   return (
     <>
-      <AppBar  sx={{backgroundColor: '#357960', color: 'white', transition: 'top 0.3s', top: visible ? 0 : '-80px', position: 'fixed' }}>
+      <AppBar position="static" sx={{ backgroundColor: '#357960', color: 'white' }}>
         <Toolbar>
 
           {/* Mobile Hamburger */}
-          <IconButton
-            edge="start"
-            color="inherit"
-            aria-label="menu"
+          <IconButton 
+            edge="start" 
+            color="inherit" 
+            aria-label="menu" 
             onClick={toggleDrawer(true)}
             sx={{ display: { xs: 'flex', md: 'none' } }}
           >
@@ -145,9 +122,6 @@ const Navbar = () => {
             </Box>
             <InputBase
               placeholder="Search…"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={handleSearchSubmit}
               sx={{
                 color: 'inherit',
                 paddingLeft: '40px',
@@ -158,10 +132,10 @@ const Navbar = () => {
           </Box>
 
           {/* Avatar + Menu */}
-          <Tooltip title={username ? username : 'Login'}>
+          <Tooltip title={userObj ? 'Logged in' : 'Login'}>
             <IconButton onClick={handleAvatarClick} sx={{ p: 0 }}>
               <Avatar sx={{ bgcolor: 'white', color: '#357960', fontWeight: 'bold' }}>
-                {username ? username.charAt(0).toUpperCase() : 'L'}
+                {firstLetter}
               </Avatar>
             </IconButton>
           </Tooltip>
@@ -172,13 +146,12 @@ const Navbar = () => {
             onClose={handleMenuClose}
             onClick={handleMenuClose}
           >
-            {username ? (
-              [
-              <MenuItem onClick={handleCart}key="Cart">Your Cart</MenuItem>,
-              <MenuItem onClick={handleLogout} key="logout">Logout</MenuItem>
-              ]
-            ) : (
-              <MenuItem onClick={handleRedirectLogin}>Login</MenuItem>
+            {userObj ? [
+                <MenuItem onClick={handleProfile} key="profile">Profile</MenuItem>,
+                <MenuItem onClick={handleCart} key="cart">Cart</MenuItem>,
+                <MenuItem onClick={handleLogout} key="logout">Logout</MenuItem>
+             ] : (
+              <MenuItem onClick={handleLogin} key="login">Login</MenuItem>
             )}
           </Menu>
 
@@ -199,11 +172,11 @@ const Navbar = () => {
         >
           <List>
             {menuItems.map((item, index) => (
-              <ListItem
-                button
+              <ListItem 
+                button 
                 key={index}
                 component={RouterLink}
-                to={item.link}
+                to={item.link.toLowerCase()}
               >
                 <ListItemText primary={item.label} />
               </ListItem>
@@ -211,6 +184,15 @@ const Navbar = () => {
             <ListItem button component={RouterLink} to="/cart">
               <ListItemText primary="View Cart" />
             </ListItem>
+            {userObj ? (
+              <ListItem button component={RouterLink} to="/profile">
+                <ListItemText primary="Profile" />
+              </ListItem>
+            ) : (
+              <ListItem button onClick={handleLogin}>
+                <ListItemText primary="Login" />
+              </ListItem>
+            )}
           </List>
         </Box>
       </Drawer>
