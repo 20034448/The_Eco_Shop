@@ -9,6 +9,7 @@ import {
   Alert
 } from "@mui/material";
 import { useNavigate, Link } from "react-router-dom";
+import Footer from "../components/Footer";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -71,6 +72,7 @@ const Login = () => {
         </Typography>
       </Box>
     </Container>
+    <Footer/>
   );
 };
 
