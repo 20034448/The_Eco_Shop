@@ -36,7 +36,7 @@ const HowItWorks = () => {
       <Navbar />
       <Box sx={{ width: '100%', mx: 'auto' }}>
       <Box>
-        <Card sx={{ mb: 0.5, mt: 2 }}>
+        <Card sx={{ mb: 1.5, mt: 4 }}>
           <CardContent>
             <Typography variant="h5">How It Works</Typography>
             <Typography variant="body2">Becoming more eco-conscious is simple when you choose the right products.</Typography>
