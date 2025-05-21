@@ -49,7 +49,7 @@ const Products = () => {
     <>
      <Navbar />
      <Box>
-     <Card sx={{ mb: 0.5, mt: 2 }}>
+     <Card sx={{ mb: 1.5, mt: 4 }}>
        <CardContent>
          <Typography variant="h5">The Eco Shop</Typography>
          <Typography variant="body1">Free deliveries over €100</Typography>
