@@ -5,6 +5,7 @@
 import React, { useState } from 'react';
 import {Container,TextField,Button,Typography,Paper,Box,Grid} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import Footer from "../components/Footer";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -160,6 +161,7 @@ const Register = () => {
         </Box>
       </Paper>
     </Container>
+    <Footer/>
   );
 };
 
