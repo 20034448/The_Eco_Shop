@@ -27,6 +27,7 @@ const Login = () => {
   };
 
   return (
+    <>
     <Container maxWidth="sm" sx={{ mt: 10, mb: 10 }}>
       <Typography variant="h4" gutterBottom>
         Login
@@ -73,6 +74,7 @@ const Login = () => {
       </Box>
     </Container>
     <Footer/>
+    </>
   );
 };
 
