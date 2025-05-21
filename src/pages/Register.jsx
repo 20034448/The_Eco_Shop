@@ -74,6 +74,7 @@ const Register = () => {
   };
 
   return (
+    <>
     <Container maxWidth="sm">
       <Paper elevation={4} sx={{ mt: 10, p: 4, borderRadius: 3 }}>
         <Typography variant="h5" align="center" gutterBottom>
@@ -162,6 +163,7 @@ const Register = () => {
       </Paper>
     </Container>
     <Footer/>
+    </>
   );
 };
 
