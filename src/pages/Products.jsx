@@ -80,7 +80,7 @@ const Products = () => {
           py: 4,
         }}
       >
-        {filtered.map(({ id, title, description, image, category }) => (
+        {filtered.map(({ id, title, description, image, category, price }) => (
       
             <Box
             sx={{
@@ -102,6 +102,7 @@ const Products = () => {
               "&:hover": { transform: "scale(1.05)" },
             }}
           >
+            <Link to={`/Products/${id}`} style={{ textDecoration: "none", color: "inherit" }}>
             <CardMedia
               component="img"
               image={image}
@@ -120,6 +121,9 @@ const Products = () => {
               <Typography variant="body2" color="text.secondary" sx={{ flexGrow: 1 }}>
                 {description}
               </Typography>
+              <Typography variant="body2" >
+                €{price}
+              </Typography>
               <Chip
                 label={category}
                 size="small"
@@ -132,6 +136,7 @@ const Products = () => {
                 }}
               />
             </CardContent>
+            </Link>
           </Box>
           
         ))}
