@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar'; // Make sure this path is correct
+import Footer from "../components/Footer";
 
 const Payment = () => {
   const navigate = useNavigate();
@@ -169,6 +170,7 @@ const Payment = () => {
           </Box>
         </Paper>
       </Container>
+      <Footer/>
     </>
   );
 };
