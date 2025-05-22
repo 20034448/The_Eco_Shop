@@ -7,30 +7,29 @@ import womens_clothing from '../assets/womens_clothing.avif';
 import Eco_food from '../assets/Eco_food.webp';
 import Eco_homeware from '../assets/Eco_homeware.jpeg';
 import Footer from '../components/Footer';
-import BreadcrumbsNav from '../components/breadcrumbsNav';
 import EcoBannerImage from '../assets/Eco_banner.jpg';
 
-// Categories data array
+// Categories data array with category filters in URL
 const categories = [
   {
     title: "Men's Clothing",
     image: mens_clothing,
-    link: '/Products',
+    link: '/Products?category=mens',
   },
   {
     title: "Women's Clothing",
     image: womens_clothing,
-    link: '/Products',
+    link: '/Products?category=womens',
   },
   {
     title: 'Food',
     image: Eco_food,
-    link: '/Products',
+    link: '/Products?category=food',
   },
   {
     title: 'Homeware',
     image: Eco_homeware,
-    link: '/Products',
+    link: '/Products?category=homeware',
   },
 ];
 
@@ -39,10 +38,10 @@ const CategoryBanner = () => {
 
   return (
     <>
-      {/* Navigation bar with menu toggle */}
+      {/* Navigation bar */}
       <Navbar onMenuClick={() => setOpen(true)} />
 
-      {/* Welcome banner with video */}
+      {/* Welcome banner */}
       <Box>
         <Card sx={{ mb: 1.5, mt: 4 }}>
           <CardContent>
@@ -52,17 +51,16 @@ const CategoryBanner = () => {
               Becoming more eco-conscious is simple when you choose the right products.
             </Typography>
           </CardContent>
-          </Card>
+        </Card>
 
-          <Box sx={{ textAlign: 'center', mb: 1}}>
-            <video width="100%" height="auto" controls autoPlay muted>
-              <source src="/ECO.Shop01.mp4" type="video/mp4" />
-            </video>
-          </Box>
-        
+        <Box sx={{ textAlign: 'center', mb: 1 }}>
+          <video width="100%" height="auto" controls autoPlay muted>
+            <source src="/ECO.Shop01.mp4" type="video/mp4" />
+          </video>
+        </Box>
       </Box>
 
-      {/* Categories grid without */}
+      {/* Categories grid */}
       <Box
         sx={{
           display: 'grid',
@@ -129,7 +127,7 @@ const CategoryBanner = () => {
         ))}
       </Box>
 
-      {/* Banner image promoting eco living */}
+      {/* Banner image */}
       <Box sx={{ width: '100%', my: 2 }}>
         <img
           src={EcoBannerImage}
@@ -143,8 +141,8 @@ const CategoryBanner = () => {
         />
       </Box>
 
-      {/* Section describing eco-living benefits */}
-      <Box sx={{  textAlign: 'left' }}>
+      {/* Informational content */}
+      <Box sx={{ textAlign: 'left' }}>
         <Card>
           <CardContent>
             <Typography variant="body1">Discover the Future of Eco Living</Typography>
@@ -155,24 +153,21 @@ const CategoryBanner = () => {
               to create compostable packaging...
             </Typography>
             <br />
-
-            <Typography variant="body1"> Join the Movement for a Better Planet</Typography>
+            <Typography variant="body1">Join the Movement for a Better Planet</Typography>
             <Typography variant="body2">
               Every product we offer supports a wider movement toward sustainability. From regenerative
               farming practices to zero-waste homeware, the eco revolution is happening now — and it's
               inspiring...
             </Typography>
             <br />
-
-            <Typography variant="body1"> Small Changes, Big Impact</Typography>
+            <Typography variant="body1">Small Changes, Big Impact</Typography>
             <Typography variant="body2">
               Eco innovation is happening all around us — from biodegradable sneakers to solar-powered
               gadgets. Every time you choose eco-conscious products, you become part of a global wave
               of positive change...
             </Typography>
             <br />
-
-            <Typography variant="body1"> The Eco Revolution is Here</Typography>
+            <Typography variant="body1">The Eco Revolution is Here</Typography>
             <Typography variant="body2">
               We believe sustainability should feel exciting, not overwhelming. That’s why we partner
               with brands leading the way in clean technology, ethical fashion, and waste-free living...
@@ -181,6 +176,7 @@ const CategoryBanner = () => {
           </CardContent>
         </Card>
       </Box>
+
       {/* Footer */}
       <Footer />
     </>

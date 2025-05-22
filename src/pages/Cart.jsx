@@ -6,9 +6,10 @@ import {
   Grid,
   Button,
   IconButton,
-  Divider
+  Divider,
+  Tooltip
 } from '@mui/material';
-import { Add, Remove, Delete } from '@mui/icons-material';
+import { Add, Remove, Delete, DeleteForever, ArrowBack } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar'; 
 import Footer from '../components/Footer';
@@ -18,8 +19,8 @@ const Cart = () => {
   const [cart, setCart] = useState([]);
 
   useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem('cart')) || [];
-    setCart(stored);
+    const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
+    setCart(storedCart);
   }, []);
 
   const updateCart = (newCart) => {
@@ -41,6 +42,14 @@ const Cart = () => {
     updateCart(updatedCart);
   };
 
+  const handleRemoveAll = () => {
+    updateCart([]);
+  };
+
+  const handleBackToShop = () => {
+    navigate('/products'); // Adjust to your actual products route
+  };
+
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   const handleCheckout = () => {
@@ -50,42 +59,166 @@ const Cart = () => {
   return (
     <>
       <Navbar /> 
-      <Container maxWidth="md">
-        <Typography variant="h5" sx={{ mt: 1, mb: 2 }} align="center">
-          Your Cart
+      <Container maxWidth="md" sx={{ mt: 4, mb: 6 }}>
+        <Typography variant="h4" align="center" gutterBottom>
+          Your Shopping Cart
         </Typography>
 
         {cart.length === 0 ? (
-          <Typography align="center" variant="h5">Your cart is empty.</Typography>
+          <Typography align="center" variant="h6" sx={{ mt: 4, color: 'text.secondary' }}>
+            Your cart is currently empty. Explore products to add some!
+          </Typography>
         ) : (
           <>
+            <Box 
+              sx={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                mb: 3,
+                px: 1,
+              }}
+            >
+              <Button
+                variant="outlined"
+                startIcon={<ArrowBack />}
+                onClick={handleBackToShop}
+                sx={{
+                  fontWeight: 600,
+                  textTransform: 'none',
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    backgroundColor: '#e0f2f1',
+                    borderColor: '#26a69a',
+                    color: '#00796b'
+                  }
+                }}
+                aria-label="Back to shop"
+              >
+                Back to Shop
+              </Button>
+
+              <Tooltip title="Remove all items from cart" arrow>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  startIcon={<DeleteForever />}
+                  onClick={handleRemoveAll}
+                  size="medium"
+                  sx={{
+                    fontWeight: 600,
+                    textTransform: 'none',
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                      backgroundColor: '#ffebee',
+                      borderColor: '#f44336',
+                      color: '#b71c1c'
+                    }
+                  }}
+                  aria-label="Remove all items"
+                >
+                  Remove All
+                </Button>
+              </Tooltip>
+            </Box>
+
             {cart.map((item) => (
-              <Box key={item.id} sx={{ mb: 3 }}>
-                <Grid container alignItems="center" spacing={2}>
-                  <Grid item xs={8}>
-                    <Typography variant="h6">{item.title || item.name}</Typography>
-                    <Typography color="text.secondary">
-                      ${item.price} × {item.quantity} = ${(item.price * item.quantity).toFixed(2)}
+              <Box
+                key={item.id}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  mb: 3,
+                  p: 2,
+                  borderRadius: 2,
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
+                  gap: 2,
+                  transition: 'box-shadow 0.3s ease',
+                  '&:hover': {
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                  }
+                }}
+              >
+                <Box
+                  component="img"
+                  src={item.image}
+                  alt={item.title}
+                  sx={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 2 }}
+                />
+                <Box sx={{ flexGrow: 1 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                    {item.title || item.name}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5, fontStyle: 'italic' }}>
+                    {item.description || 'No description available'}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'bold' }}>
+                    Price: €{item.price.toFixed(2)}
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                    Subtotal: €{(item.price * item.quantity).toFixed(2)}
+                  </Typography>
+                </Box>
+
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                    <Tooltip title="Decrease quantity" arrow>
+                      <IconButton
+                        onClick={() => handleQuantityChange(item.id, -1)}
+                        size="medium"
+                        color="primary"
+                        aria-label="decrease quantity"
+                      >
+                        <Remove />
+                      </IconButton>
+                    </Tooltip>
+                    <Typography
+                      sx={{
+                        mx: 1,
+                        minWidth: 30,
+                        textAlign: 'center',
+                        fontSize: '1.1rem',
+                        fontWeight: 600
+                      }}
+                    >
+                      {item.quantity}
                     </Typography>
-                  </Grid>
-                  <Grid item xs={4} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <IconButton onClick={() => handleQuantityChange(item.id, -1)}><Remove /></IconButton>
-                    <Typography sx={{ mx: 1, mt: 1 }}>{item.quantity}</Typography>
-                    <IconButton onClick={() => handleQuantityChange(item.id, 1)}><Add /></IconButton>
-                    <IconButton onClick={() => handleDelete(item.id)}><Delete /></IconButton>
-                  </Grid>
-                </Grid>
-                <Divider sx={{ mt: 2 }} />
+                    <Tooltip title="Increase quantity" arrow>
+                      <IconButton
+                        onClick={() => handleQuantityChange(item.id, 1)}
+                        size="medium"
+                        color="primary"
+                        aria-label="increase quantity"
+                      >
+                        <Add />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                  <Tooltip title="Remove this item" arrow>
+                    <IconButton onClick={() => handleDelete(item.id)} color="error" size="medium" aria-label="remove item">
+                      <Delete />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
               </Box>
             ))}
 
-            <Box sx={{ textAlign: 'right', mt: 4 }}>
-              <Typography variant="h6">Total: ${total.toFixed(2)}</Typography>
+            <Divider sx={{ mt: 3, mb: 2 }} />
+
+            <Box sx={{ textAlign: 'right' }}>
+              <Typography variant="h5" fontWeight="bold" sx={{ mb: 1 }}>
+                Total: €{total.toFixed(2)}
+              </Typography>
               <Button
                 variant="contained"
                 color="primary"
-                sx={{ mt: 2 }}
+                size="large"
                 onClick={handleCheckout}
+                sx={{
+                  textTransform: 'none',
+                  fontWeight: '600',
+                  px: 5,
+                  py: 1.5
+                }}
               >
                 Proceed to Payment
               </Button>

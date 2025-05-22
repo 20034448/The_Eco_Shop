@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { Box, Typography, Button, Grid } from "@mui/material";
+import { Box, Typography, Button, Grid, Modal, IconButton } from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
 
-// Sample product list with prices
 const products = [
   { id: 1, title: "Recycled Ocean Plastic T-Shirt", description: "Made from plastic bottles collected from the ocean.", image: "/images/01.jpg", category: "Men's Clothing", price: 29.99 },
   { id: 2, title: "Organic Cotton Hoodie", description: "Soft, breathable hoodie made from 100% organic cotton.", image: "/images/02.png", category: "Men's Clothing", price: 49.99 },
@@ -29,12 +29,12 @@ const products = [
   { id: 21, title: "Eco-Friendly Yoga Mat", description: "Made from natural rubber and non-toxic dyes, this mat offers excellent grip and comfort.", image: "/images/021.png", category: "Homeware", price: 45.00 }
 ];
 
-
 const ItemDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const product = products.find((p) => p.id === parseInt(id));
-  const [mainImage, setMainImage] = useState(product?.image || "");
+
+  const [openModal, setOpenModal] = useState(false);
 
   if (!product) return <p>Product not found</p>;
 
@@ -45,7 +45,14 @@ const ItemDetails = () => {
     if (existing) {
       existing.quantity += 1;
     } else {
-      cart.push({ ...product, quantity: 1 });
+      cart.push({
+        id: product.id,
+        title: product.title,
+        description: product.description,
+        price: product.price,
+        image: product.image,
+        quantity: 1
+      });
     }
 
     localStorage.setItem("cart", JSON.stringify(cart));
@@ -53,66 +60,133 @@ const ItemDetails = () => {
   };
 
   const handleBuyNow = () => {
-    localStorage.setItem("cart", JSON.stringify([{ ...product, quantity: 1 }]));
+    const singleItemCart = [{
+      id: product.id,
+      title: product.title,
+      description: product.description,
+      price: product.price,
+      image: product.image,
+      quantity: 1
+    }];
+    localStorage.setItem("cart", JSON.stringify(singleItemCart));
     navigate("/payment");
   };
 
   return (
     <>
       <Navbar />
-      <Box sx={{ p: 4 }}>
-        <Grid container spacing={4}>
+      <Box sx={{ p: { xs: 2, md: 6 } }}>
+        <Grid container spacing={6} alignItems="center">
           <Grid item xs={12} md={6}>
-            <img
-              src={mainImage}
+            {/* Imagem principal clicável para abrir modal */}
+            <Box
+              component="img"
+              src={product.image}
               alt={product.title}
-              style={{ width: "100%", borderRadius: 8 }}
+              sx={{
+                width: '100%',
+                maxHeight: 400,
+                objectFit: 'contain',
+                borderRadius: 3,
+                boxShadow: 3,
+                mb: 2,
+                userSelect: 'none',
+                cursor: 'zoom-in',
+              }}
+              loading="lazy"
+              onClick={() => setOpenModal(true)}
             />
-            <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
-              {[product.image, product.image, product.image].map((img, idx) => (
-                <img
-                  key={idx}
-                  src={img}
-                  alt={`Thumbnail ${idx}`}
-                  onClick={() => setMainImage(img)}
-                  style={{
-                    width: 80,
-                    height: 80,
-                    objectFit: "cover",
-                    borderRadius: 6,
-                    cursor: "pointer",
-                  }}
-                />
-              ))}
-            </Box>
           </Grid>
 
           <Grid item xs={12} md={6}>
             <Typography variant="h4" fontWeight="bold" gutterBottom>
               {product.title}
             </Typography>
-            <Typography variant="h6" color="text.secondary" gutterBottom>
+            <Typography variant="subtitle1" color="text.secondary" gutterBottom sx={{ fontStyle: 'italic' }}>
               {product.category}
             </Typography>
-            <Typography variant="body1" paragraph>
+            <Typography variant="body1" paragraph sx={{ lineHeight: 1.6 }}>
               {product.description}
             </Typography>
-            <Typography variant="h6" color="primary">
-              Price: €{product.price}
+            <Typography variant="h5" color="primary" sx={{ fontWeight: 700, mb: 3 }}>
+              Price: €{product.price.toFixed(2)}
             </Typography>
 
-            <Box sx={{ display: "flex", gap: 2, mt: 3 }}>
-              <Button variant="contained" color="success" onClick={handleAddToCart}>
+            <Box sx={{ display: "flex", gap: 3, flexWrap: 'wrap' }}>
+              <Button
+                variant="contained"
+                color="success"
+                size="large"
+                onClick={handleAddToCart}
+                sx={{ textTransform: 'none', fontWeight: 600, px: 4 }}
+              >
                 Add to Cart
               </Button>
-              <Button variant="outlined" color="primary" onClick={handleBuyNow}>
+              <Button
+                variant="outlined"
+                color="primary"
+                size="large"
+                onClick={handleBuyNow}
+                sx={{ textTransform: 'none', fontWeight: 600, px: 4 }}
+              >
                 Buy Now
               </Button>
             </Box>
           </Grid>
         </Grid>
+
+        {/* Modal para zoom da imagem */}
+        <Modal
+          open={openModal}
+          onClose={() => setOpenModal(false)}
+          aria-labelledby="zoomed-image-modal"
+          aria-describedby="larger-view-of-product-image"
+          closeAfterTransition
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            bgcolor: 'rgba(0,0,0,0.8)',
+          }}
+        >
+          <Box
+            sx={{
+              position: 'relative',
+              outline: 'none',
+              maxWidth: '90vw',
+              maxHeight: '90vh',
+            }}
+          >
+            <IconButton
+              onClick={() => setOpenModal(false)}
+              sx={{
+                position: 'absolute',
+                top: 8,
+                right: 8,
+                color: 'white',
+                bgcolor: 'rgba(0,0,0,0.4)',
+                '&:hover': { bgcolor: 'rgba(0,0,0,0.6)' }
+              }}
+              aria-label="Close image zoom"
+            >
+              <CloseIcon />
+            </IconButton>
+
+            <Box
+              component="img"
+              src={product.image}
+              alt={product.title}
+              sx={{
+                width: '100%',
+                height: 'auto',
+                borderRadius: 2,
+                userSelect: 'none',
+              }}
+            />
+          </Box>
+        </Modal>
       </Box>
-      <Footer/>
+      <Footer />
     </>
   );
 };

@@ -1,178 +1,162 @@
-import React, { useState } from 'react';
-import {
-  Container,
-  TextField,
-  Button,
-  Typography,
-  Paper,
-  Box,
-  Grid,
-  Divider
-} from '@mui/material';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Navbar from '../components/Navbar'; // Make sure this path is correct
-import Footer from "../components/Footer";
+import {
+  Box, Button, TextField, Typography, Grid, Divider, Paper, List, ListItem
+} from '@mui/material';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
-const Payment = () => {
+const PaymentPage = () => {
   const navigate = useNavigate();
 
-  // ✅ Get cart from localStorage
-  const cartItems = JSON.parse(localStorage.getItem("cart")) || [];
+  const [cardName, setCardName] = useState('');
+  const [cardNumber, setCardNumber] = useState('');
+  const [expiry, setExpiry] = useState('');
+  const [cvv, setCvv] = useState('');
+  const [address, setAddress] = useState('');
+  const [error, setError] = useState('');
+  const [cart, setCart] = useState([]);
 
-  const total = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  useEffect(() => {
+    const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
+    setCart(storedCart);
+  }, []);
 
-  const [form, setForm] = useState({
-    cardName: '',
-    cardNumber: '',
-    expiry: '',
-    cvv: '',
-  });
+  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  const [errors, setErrors] = useState({});
+  const validateCard = () => {
+    const cardRegex = /^[0-9]{13,19}$/;
+    const expiryRegex = /^(0[1-9]|1[0-2])\/\d{2}$/;
+    const cvvRegex = /^[0-9]{3,4}$/;
 
-  const validate = () => {
-    const newErrors = {};
-    let isValid = true;
-
-    if (!form.cardName.trim()) {
-      newErrors.cardName = 'Name on card is required';
-      isValid = false;
+    if (!cardName || !cardNumber || !expiry || !cvv || !address) {
+      setError('Please fill in all fields.');
+      return false;
     }
 
-    if (!/^\d{16}$/.test(form.cardNumber)) {
-      newErrors.cardNumber = 'Card number must be 16 digits';
-      isValid = false;
+    if (!cardRegex.test(cardNumber)) {
+      setError('Invalid card number.');
+      return false;
     }
 
-    if (!/^\d{2}\/\d{2}$/.test(form.expiry)) {
-      newErrors.expiry = 'Expiry must be MM/YY';
-      isValid = false;
+    if (!expiryRegex.test(expiry)) {
+      setError('Invalid expiry date. Use MM/YY.');
+      return false;
     }
 
-    if (!/^\d{3}$/.test(form.cvv)) {
-      newErrors.cvv = 'CVV must be 3 digits';
-      isValid = false;
+    if (!cvvRegex.test(cvv)) {
+      setError('Invalid CVV.');
+      return false;
     }
 
-    setErrors(newErrors);
-    return isValid;
+    return true;
   };
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-    setErrors({ ...errors, [e.target.name]: '' });
-  };
+  const handlePayment = () => {
+    if (!validateCard()) return;
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (validate()) {
-      alert(`Payment of €${total.toFixed(2)} successful!`);
-      localStorage.removeItem('cart'); // Clear cart after payment
-      navigate('/');
-    }
+    localStorage.setItem('deliveryAddress', address);
+    navigate('/receipt');
   };
 
   return (
     <>
       <Navbar />
-      <Container maxWidth="sm">
-        <Paper elevation={4} sx={{ mt: 8, p: 4, borderRadius: 3 }}>
-          <Typography variant="h5" align="center" gutterBottom>
-            Review & Payment
-          </Typography>
+      <Box sx={{ p: 2, maxWidth: 600, mx: 'auto' }}>
+        <Typography variant="h4" gutterBottom>Payment Information</Typography>
 
-          {/* 🛒 Cart Summary */}
-          <Box sx={{ mb: 3 }}>
-            <Typography variant="h6">Cart Summary</Typography>
-            <Divider sx={{ my: 1 }} />
-            {cartItems.length === 0 ? (
-              <Typography>No items in cart.</Typography>
-            ) : (
-              <>
-                {cartItems.map((item, index) => (
-                  <Box
-                    key={`${item.id}-${index}`}
-                    sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}
-                  >
-                    <Typography>{item.title || item.name} × {item.quantity}</Typography>
-                    <Typography>€{(item.price * item.quantity).toFixed(2)}</Typography>
-                  </Box>
-                ))}
-                <Divider sx={{ my: 1 }} />
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
-                  <Typography>Total:</Typography>
-                  <Typography>€{total.toFixed(2)}</Typography>
+        <Paper sx={{ p: 2, mb: 3 }} elevation={3}>
+          <Typography variant="h6" gutterBottom>Cart Summary</Typography>
+          <List dense>
+            {cart.map((item, index) => (
+              <ListItem
+                key={index}
+                sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', py: 1 }}
+              >
+                <Box>
+                  <Typography variant="subtitle1" fontWeight="bold">
+                    {item.name} × {item.quantity}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {item.description || 'Sem descrição'}
+                  </Typography>
                 </Box>
-              </>
-            )}
-          </Box>
-
-          {/* 💳 Payment Form */}
-          <Box component="form" onSubmit={handleSubmit}>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <TextField
-                  name="cardName"
-                  label="Name on Card"
-                  fullWidth
-                  value={form.cardName}
-                  onChange={handleChange}
-                  error={!!errors.cardName}
-                  helperText={errors.cardName}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  name="cardNumber"
-                  label="Card Number"
-                  fullWidth
-                  value={form.cardNumber}
-                  onChange={handleChange}
-                  error={!!errors.cardNumber}
-                  helperText={errors.cardNumber}
-                />
-              </Grid>
-              <Grid item xs={6}>
-                <TextField
-                  name="expiry"
-                  label="Expiry (MM/YY)"
-                  fullWidth
-                  value={form.expiry}
-                  onChange={handleChange}
-                  error={!!errors.expiry}
-                  helperText={errors.expiry}
-                />
-              </Grid>
-              <Grid item xs={6}>
-                <TextField
-                  name="cvv"
-                  label="CVV"
-                  fullWidth
-                  value={form.cvv}
-                  onChange={handleChange}
-                  error={!!errors.cvv}
-                  helperText={errors.cvv}
-                />
-              </Grid>
-            </Grid>
-
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 4, backgroundColor: '#1976d2', fontWeight: 'bold' }}
-            >
-              Pay €{total.toFixed(2)}
-            </Button>
-          </Box>
+                <Typography variant="subtitle1" sx={{ ml: 2, whiteSpace: 'nowrap' }}>
+                  ${ (item.price * item.quantity).toFixed(2) }
+                </Typography>
+              </ListItem>
+            ))}
+          </List>
+          <Divider sx={{ my: 1 }} />
+          <Typography variant="subtitle1" sx={{ fontWeight: 'bold', textAlign: 'right' }}>
+            Total: ${total.toFixed(2)}
+          </Typography>
         </Paper>
-      </Container>
-      <Footer/>
+
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Name on Card"
+              value={cardName}
+              onChange={(e) => setCardName(e.target.value)}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Card Number"
+              value={cardNumber}
+              onChange={(e) => setCardNumber(e.target.value)}
+              inputProps={{ maxLength: 19 }}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              fullWidth
+              label="Expiry Date (MM/YY)"
+              value={expiry}
+              onChange={(e) => setExpiry(e.target.value)}
+              inputProps={{ maxLength: 5 }}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              fullWidth
+              label="CVV"
+              type="password"
+              value={cvv}
+              onChange={(e) => setCvv(e.target.value)}
+              inputProps={{ maxLength: 4 }}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Delivery Address"
+              multiline
+              rows={3}
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+            />
+          </Grid>
+        </Grid>
+
+        {error && (
+          <Typography color="error" sx={{ mt: 2 }}>{error}</Typography>
+        )}
+
+        <Divider sx={{ my: 3 }} />
+
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, flexWrap: 'wrap' }}>
+          <Button variant="outlined" onClick={() => navigate('/cart')}>Back to Cart</Button>
+          <Button variant="outlined" onClick={() => navigate('/products')}>Add More Products</Button>
+          <Button variant="contained" onClick={handlePayment} color="primary">Pay Now</Button>
+        </Box>
+      </Box>
+      <Footer />
     </>
   );
 };
 
-export default Payment;
+export default PaymentPage;

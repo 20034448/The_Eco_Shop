@@ -11,6 +11,7 @@ import Payment from './pages/Payment';
 import Cart from './pages/Cart';
 import Profile from './pages/Profile';
 import Logout from "./pages/Logout";
+import Receipt from './pages/ReceiptPage';
 import { useState, useEffect } from 'react';
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
   return (
     <>
       <Routes>
+        <Route path="/receipt" element={<Receipt />} />
         <Route path="/logout" element={<Logout />} />
         <Route path="/" element={isLoggedIn ? <Navigate to="/home" /> : <Login />} />
         <Route path="/login" element={isLoggedIn ? <Navigate to="/Home" /> : <Login />} />

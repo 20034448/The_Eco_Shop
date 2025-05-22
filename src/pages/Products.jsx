@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { TextField, Grid, Card, CardContent, Typography, CardMedia, Chip, Box } from '@mui/material';
-import { Link, useLocation } from 'react-router-dom';
+import { TextField, Grid, Card, CardContent, Typography, CardMedia, Chip, Box, Button } from '@mui/material';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
@@ -28,122 +28,191 @@ const productsData = [
   { id: 21, title: "Eco-Friendly Yoga Mat", description: "Made from natural rubber and non-toxic dyes, this mat offers excellent grip and comfort.", image: "/images/021.png", category: "Homeware", price: 45.00 }
 ];
 
+const categoryMap = {
+  mens: "Men's Clothing",
+  womens: "Women's Clothing",
+  food: "Food",
+  homeware: "Homeware",
+};
+
+const categories = [
+  { key: 'all', label: 'All' },
+  { key: 'mens', label: "Men's Clothing" },
+  { key: 'womens', label: "Women's Clothing" },
+  { key: 'food', label: "Food" },
+  { key: 'homeware', label: "Homeware" },
+];
+
 const useQuery = () => {
   return new URLSearchParams(useLocation().search);
 };
 
 const Products = () => {
+  const navigate = useNavigate();
   const query = useQuery();
   const searchTerm = query.get('search')?.toLowerCase() || '';
+  const categoryParam = query.get('category') || 'all';
   const [search, setSearch] = useState(searchTerm);
-  const [filtered, setFiltered] = useState([productsData]);
+  const [selectedCategory, setSelectedCategory] = useState(categoryParam);
+  const [filtered, setFiltered] = useState([]);
 
   useEffect(() => {
-    const filteredResults = productsData.filter(p =>
-      p.title.toLowerCase().includes(search.toLowerCase())
-    );
-    setFiltered(filteredResults);
-  }, [search]);
+    let results = productsData;
+
+    if (selectedCategory !== 'all' && categoryMap[selectedCategory]) {
+      results = results.filter(
+        (product) => product.category === categoryMap[selectedCategory]
+      );
+    }
+
+    if (search) {
+      results = results.filter((product) =>
+        product.title.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+
+    setFiltered(results);
+  }, [search, selectedCategory]);
+
+  // Atualiza URL ao mudar categoria para manter estado na URL
+  const handleCategoryChange = (categoryKey) => {
+    setSelectedCategory(categoryKey);
+    const params = new URLSearchParams();
+    if (search) params.set('search', search);
+    if (categoryKey !== 'all') params.set('category', categoryKey);
+    else params.delete('category');
+
+    navigate(`/products?${params.toString()}`);
+  };
 
   return (
     <>
-     <Navbar />
-     <Box>
-     <Card sx={{ mb: 1.5, mt: 4 }}>
-       <CardContent>
-         <Typography variant="h5">The Eco Shop</Typography>
-         <Typography variant="body1">Free deliveries over €100</Typography>
-         <Typography variant="body2">
-          Becoming more eco-conscious is simple when you choose the right products.
-         </Typography>
-         </CardContent>
-     </Card> 
-     </Box>
-     
-      <Box sx={{ padding: 1.5 }}>
-        <TextField
-          fullWidth
-          label="Search Products"
-          variant="outlined"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          sx={{ mb: 4 }}
-        />
-      </Box>
-      <Box
-        sx={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: "center",
-          gap: 3,
-          px: 2,
-          py: 4,
-        }}
-      >
-        {filtered.map(({ id, title, description, image, category, price }) => (
-      
-            <Box
-            sx={{
-              flex: "1 1 100%",  
-              maxWidth: "100%",
-              "@media(min-width:600px)": {  
-                flex: "1 1 45%",
-                maxWidth: "45%",
-              },
-              "@media(min-width:900px)": {
-                flex: "1 1 22%",
-                maxWidth: "22%",
-              },
-              display: "flex",
-              flexDirection: "column",
-              borderRadius: 2,
-              boxShadow: 3,
-              transition: "transform 0.3s ease",
-              "&:hover": { transform: "scale(1.05)" },
+      <Navbar />
+      <Box sx={{ maxWidth: 1200, mx: 'auto', p: 2 }}>
+        <Card sx={{ mb: 2, mt: 4 }}>
+          <CardContent>
+            <Typography variant="h5" gutterBottom>The Eco Shop</Typography>
+            <Typography variant="body1">Free deliveries over €100</Typography>
+            <Typography variant="body2">
+              Becoming more eco-conscious is simple when you choose the right products.
+            </Typography>
+          </CardContent>
+        </Card>
+
+        {/* Barra de categorias */}
+        <Box sx={{ mb: 3, display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'center' }}>
+          {categories.map(({ key, label }) => (
+            <Button
+              key={key}
+              variant={selectedCategory === key ? 'contained' : 'outlined'}
+              onClick={() => handleCategoryChange(key)}
+              sx={{ textTransform: 'none', fontWeight: 600 }}
+              aria-pressed={selectedCategory === key}
+            >
+              {label}
+            </Button>
+          ))}
+        </Box>
+
+        {/* Barra de busca */}
+        <Box sx={{ mb: 4 }}>
+          <TextField
+            fullWidth
+            label="Search Products"
+            variant="outlined"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                // Atualiza a URL com a busca ao pressionar Enter
+                const params = new URLSearchParams();
+                if (search) params.set('search', search);
+                if (selectedCategory !== 'all') params.set('category', selectedCategory);
+                navigate(`/products?${params.toString()}`);
+              }
             }}
-          >
-            <Link to={`/Products/${id}`} style={{ textDecoration: "none", color: "inherit" }}>
-            <CardMedia
-              component="img"
-              image={image}
-              alt={title}
+          />
+        </Box>
+
+        {/* Lista de produtos */}
+        <Box
+          sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            gap: 3,
+            px: 2,
+            py: 4,
+          }}
+        >
+          {filtered.length === 0 && (
+            <Typography variant="h6" sx={{ mt: 4, color: 'text.secondary' }}>
+              No products found.
+            </Typography>
+          )}
+          {filtered.map(({ id, title, description, image, category, price }) => (
+            <Box
+              key={id}
               sx={{
-                width: "100%",
-                height: 200,
-                objectFit: "cover",
-                borderRadius: "8px 8px 0 0",
+                flex: '1 1 100%',
+                maxWidth: '100%',
+                '@media(min-width:600px)': {
+                  flex: '1 1 45%',
+                  maxWidth: '45%',
+                },
+                '@media(min-width:900px)': {
+                  flex: '1 1 22%',
+                  maxWidth: '22%',
+                },
+                display: 'flex',
+                flexDirection: 'column',
+                borderRadius: 2,
+                boxShadow: 3,
+                transition: 'transform 0.3s ease',
+                '&:hover': { transform: 'scale(1.05)' },
               }}
-            />
-            <CardContent sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
-              <Typography variant="h6" fontWeight="bold" gutterBottom noWrap>
-                {title}
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ flexGrow: 1 }}>
-                {description}
-              </Typography>
-              <Typography variant="body2" >
-                €{price}
-              </Typography>
-              <Chip
-                label={category}
-                size="small"
-                sx={{
-                  mt: 1,
-                  alignSelf: "center",
-                  backgroundColor: "#76c7c0",
-                  color: "white",
-                  fontWeight: "bold",
-                }}
-              />
-            </CardContent>
-            </Link>
-          </Box>
-          
-        ))}
+            >
+              <Link to={`/Products/${id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <CardMedia
+                  component="img"
+                  image={image}
+                  alt={title}
+                  sx={{
+                    width: '100%',
+                    height: 200,
+                    objectFit: 'cover',
+                    borderRadius: '8px 8px 0 0',
+                  }}
+                />
+                <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+                  <Typography variant="h6" fontWeight="bold" gutterBottom noWrap>
+                    {title}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ flexGrow: 1 }}>
+                    {description}
+                  </Typography>
+                  <Typography variant="body2">€{price.toFixed(2)}</Typography>
+                  <Chip
+                    label={category}
+                    size="small"
+                    sx={{
+                      mt: 1,
+                      alignSelf: 'center',
+                      backgroundColor: '#76c7c0',
+                      color: 'white',
+                      fontWeight: 'bold',
+                    }}
+                  />
+                </CardContent>
+              </Link>
+            </Box>
+          ))}
+        </Box>
       </Box>
-    <Footer/>
-    </>
+      <Footer />
+       </>
   );
 };
 
 export default Products;
+   
