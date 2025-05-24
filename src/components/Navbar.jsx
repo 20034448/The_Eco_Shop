@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { AppBar, Toolbar, Typography, IconButton, Avatar, Tooltip, InputBase, Box, Drawer, List, ListItem, ListItemText, Button, Menu, MenuItem } from "@mui/material";
-import { styled, alpha } from '@mui/material/styles';
+import React, { useState, useEffect } from 'react';
+import { AppBar, Toolbar, IconButton, Avatar, Tooltip, InputBase, Box, Drawer, List, ListItem, ListItemText, Button, Menu, MenuItem } from "@mui/material";
+import { alpha } from '@mui/material/styles';
 import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from '@mui/icons-material/Search';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
@@ -15,6 +15,23 @@ const Navbar = () => {
   const fullName = userObj?.fullName || '';
   // Pega a primeira letra do primeiro nome, maiúscula
   const firstLetter = fullName ? fullName.trim().charAt(0).toUpperCase() : 'L';
+
+  const [visible, setVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setVisible(false);
+      } else {
+        setVisible(true);
+      }
+      setLastScrollY(currentScrollY);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
 
   const toggleDrawer = (open) => () => {
     setDrawerOpen(open);
@@ -36,7 +53,9 @@ const Navbar = () => {
 
   const handleLogin = () => {
     handleMenuClose();
-    navigate('/Login');
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {navigate('/profile');}
+    else {navigate('/login');}
   };
 
   const handleCart = () => {
@@ -55,10 +74,22 @@ const Navbar = () => {
     { label: 'How It Works', link: '/how-it-works' },
     { label: 'FAQs', link: '/faqs' },
   ];
+  const [searchTerm, setSearchTerm] = useState('');
+
+const handleSearchChange = (event) => {
+  setSearchTerm(event.target.value);
+};
+
+const handleSearchKeyDown = (event) => {
+  if (event.key === 'Enter' && searchTerm.trim()) {
+    navigate(`/products?search=${encodeURIComponent(searchTerm.trim())}`);
+    setSearchTerm('');
+  }
+};
 
   return (
     <>
-      <AppBar position="static" sx={{ backgroundColor: '#357960', color: 'white' }}>
+      <AppBar sx={{ backgroundColor: '#357960', color: 'white', transition: 'top 0.3s', top: visible ? 0 : '-80px', position: 'fixed' }}>
         <Toolbar>
 
           {/* Mobile Hamburger */}
@@ -122,6 +153,9 @@ const Navbar = () => {
             </Box>
             <InputBase
               placeholder="Search…"
+              value={searchTerm}
+              onChange={handleSearchChange}
+              onKeyDown={handleSearchKeyDown}
               sx={{
                 color: 'inherit',
                 paddingLeft: '40px',
@@ -132,7 +166,7 @@ const Navbar = () => {
           </Box>
 
           {/* Avatar + Menu */}
-          <Tooltip title={userObj ? 'Logged in' : 'Login'}>
+          <Tooltip title={fullName || 'Login'}>
             <IconButton onClick={handleAvatarClick} sx={{ p: 0 }}>
               <Avatar sx={{ bgcolor: 'white', color: '#357960', fontWeight: 'bold' }}>
                 {firstLetter}
@@ -147,9 +181,11 @@ const Navbar = () => {
             onClick={handleMenuClose}
           >
             {userObj ? [
-                <MenuItem onClick={handleProfile} key="profile">Profile</MenuItem>,
-                <MenuItem onClick={handleCart} key="cart">Cart</MenuItem>,
-                <MenuItem onClick={handleLogout} key="logout">Logout</MenuItem>
+              [
+                <MenuItem onClick={handleProfile}>Profile</MenuItem>,
+                <MenuItem onClick={handleCart}>Cart</MenuItem>,
+                <MenuItem onClick={handleLogout}>Logout</MenuItem>
+              ]
              ] : (
               <MenuItem onClick={handleLogin} key="login">Login</MenuItem>
             )}
@@ -159,11 +195,7 @@ const Navbar = () => {
       </AppBar>
 
       {/* Mobile Navbar */}
-      <Drawer
-        anchor="left"
-        open={drawerOpen}
-        onClose={toggleDrawer(false)}
-      >
+      <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>
         <Box
           sx={{ width: 250 }}
           role="presentation"
@@ -171,23 +203,17 @@ const Navbar = () => {
           onKeyDown={toggleDrawer(false)}
         >
           <List>
-            {menuItems.map((item, index) => (
-              <ListItem 
-                button 
-                key={index}
-                component={RouterLink}
-                to={item.link.toLowerCase()}
-              >
-                <ListItemText primary={item.label} />
-              </ListItem>
-            ))}
-            <ListItem button component={RouterLink} to="/cart">
-              <ListItemText primary="View Cart" />
-            </ListItem>
             {userObj ? (
-              <ListItem button component={RouterLink} to="/profile">
-                <ListItemText primary="Profile" />
-              </ListItem>
+              <>
+                {menuItems.map((item, index) => (
+                  <ListItem button key={index} component={RouterLink} to={item.link}>
+                    <ListItemText primary={item.label} />
+                  </ListItem>
+                ))}
+                <ListItem button component={RouterLink} to="/cart">
+                  <ListItemText primary="View Cart" />
+                </ListItem>
+              </>
             ) : (
               <ListItem button onClick={handleLogin}>
                 <ListItemText primary="Login" />
