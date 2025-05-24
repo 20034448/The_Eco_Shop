@@ -12,6 +12,10 @@ import Cart from './pages/Cart';
 import Profile from './pages/Profile';
 import Logout from "./pages/Logout";
 import Receipt from './pages/ReceiptPage';
+import About from './pages/About';
+import Contact from './pages/Contact';
+import Privacy from './pages/Privacy';
+import Scrolltotop from './components/Scrolltotop';
 import { useState, useEffect } from 'react';
 
 function App() {
@@ -28,9 +32,13 @@ function App() {
 
   return (
     <>
+    <Scrolltotop />
       <Routes>
         <Route path="/receipt" element={<Receipt />} />
         <Route path="/logout" element={<Logout />} />
+        <Route path="/about" element={<About/>} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/privacy" element={<Privacy />} />
         <Route path="/" element={isLoggedIn ? <Navigate to="/home" /> : <Login />} />
         <Route path="/login" element={isLoggedIn ? <Navigate to="/Home" /> : <Login />} />
         <Route path="/register" element={<Register />} />
