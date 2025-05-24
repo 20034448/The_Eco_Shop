@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Typography, Link } from '@mui/material';
+import { Box, Typography, Link as MuiLink} from '@mui/material';
+import {Link as RouterLink} from 'react-router-dom';
 
 const Footer = () => {
   return (
@@ -30,15 +31,15 @@ const Footer = () => {
 
 
           <Box sx={{ display: 'flex', gap: 2 }}>
-            <Link href="/about" color="inherit" underline="hover">
-            <Typography variant="body2" align="center" color='white'>About Us</Typography>
-            </Link>
-            <Link href="/contact" color="inherit" underline="hover">
-            <Typography variant="body2" align="center" color='white'>Contact</Typography>
-            </Link>
-            <Link href="/privacy" color="inherit" underline="hover">
-            <Typography variant="body2" align="center" color='white'>Privacy Policy</Typography>
-            </Link>
+          <MuiLink component={RouterLink} to="/about" color="inherit" underline="hover">
+            <Typography variant="body2" align="center" color="white">About Us</Typography>
+          </MuiLink>
+          <MuiLink component={RouterLink} to="/contact" color="inherit" underline="hover">
+            <Typography variant="body2" align="center" color="white">Contact</Typography>
+          </MuiLink>
+          <MuiLink component={RouterLink} to="/privacy" color="inherit" underline="hover">
+            <Typography variant="body2" align="center" color="white">Privacy Policy</Typography>
+          </MuiLink>
           </Box>
         </Box>
     </Box>
