@@ -1,14 +1,6 @@
 import React from 'react';
 import Navbar from '../components/Navbar';
-import {
-  Box,
-  Typography,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  Card,
-  CardContent,
-} from '@mui/material';
+import {Box, Typography, Accordion, AccordionSummary, AccordionDetails, Card, CardContent } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Footer from '../components/Footer';
 import { useState } from 'react';
@@ -65,14 +57,16 @@ const FAQs = () => {
   return (
     <>
       <Navbar />
-      <Card sx={{ mb: 1.5, mt: 4 }}>
+      <Box>
+        <Card sx={{ mb: 1.5, mt: 4 }}>
           <CardContent>
             <Typography variant="h5">Frequently Asked Questions</Typography>
             <Typography variant="body2">
               Becoming more eco-conscious is simple when you choose the right products.
             </Typography>
           </CardContent>
-          </Card>
+        </Card>
+      </Box>
         
           {faqList.map((faq, index) => (
           <Accordion

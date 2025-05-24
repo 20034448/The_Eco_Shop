@@ -88,8 +88,8 @@ const Products = () => {
   return (
     <>
       <Navbar />
-      <Box sx={{ maxWidth: 1200, mx: 'auto', p: 2 }}>
-        <Card sx={{ mb: 2, mt: 4 }}>
+      <Box>
+        <Card sx={{ mb: 1.5, mt: 4 }}>
           <CardContent>
             <Typography variant="h5" gutterBottom>The Eco Shop</Typography>
             <Typography variant="body1">Free deliveries over €100</Typography>
@@ -104,18 +104,20 @@ const Products = () => {
           {categories.map(({ key, label }) => (
             <Button
               key={key}
-              variant={selectedCategory === key ? 'contained' : 'outlined'}
               onClick={() => handleCategoryChange(key)}
-              sx={{ textTransform: 'none', fontWeight: 600 }}
-              aria-pressed={selectedCategory === key}
-            >
-              {label}
+              sx={{ backgroundColor: '#76c7c0', color: 'white', textTransform: 'none', fontWeight: 600, '&:hover': {
+                backgroundColor: '#5db0aa'
+                },
+              }}
+                aria-pressed={selectedCategory === key}
+              >
+                {label}
             </Button>
           ))}
         </Box>
 
         {/* Barra de busca */}
-        <Box sx={{ mb: 4 }}>
+        <Box sx={{ mb: 4, maxWidth: 948, mx: 'auto'}}>
           <TextField
             fullWidth
             label="Search Products"
@@ -154,16 +156,8 @@ const Products = () => {
             <Box
               key={id}
               sx={{
-                flex: '1 1 100%',
-                maxWidth: '100%',
-                '@media(min-width:600px)': {
-                  flex: '1 1 45%',
-                  maxWidth: '45%',
-                },
-                '@media(min-width:900px)': {
-                  flex: '1 1 22%',
-                  maxWidth: '22%',
-                },
+                flex: '1 1 300px',
+                maxWidth: '300px',
                 display: 'flex',
                 flexDirection: 'column',
                 borderRadius: 2,
