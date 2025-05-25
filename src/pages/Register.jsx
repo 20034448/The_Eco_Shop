@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Container, TextField, Button, Typography, Paper, Box, Grid } from '@mui/material';
+import { Container, TextField, Button, Typography, Paper, Box, Grid, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
@@ -8,11 +8,13 @@ const Register = () => {
     name: '',
     phone: '',
     email: '',
+    address: '',
     password: '',
     confirmPassword: ''
   });
 
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const validate = () => {
     const newErrors = {};
@@ -39,6 +41,11 @@ const Register = () => {
       isValid = false;
     }
 
+    if (!form.address.trim()) {
+      newErrors.address = 'Address is required.';
+      isValid = false;
+    }
+
     if (form.password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters.';
       isValid = false;
@@ -58,22 +65,39 @@ const Register = () => {
     setErrors({ ...errors, [e.target.name]: '' });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (validate()) {
+      setLoading(true);
       const userProfile = {
         name: form.name,
         phone: form.phone,
         email: form.email,
+        address: form.address,
         password: form.password,
       };
 
-      // Save user profile to localStorage
-      localStorage.setItem('profile', JSON.stringify(userProfile));
+      try {
+        const response = await fetch('http://localhost:3000/api/users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(userProfile),
+        });
 
-      alert('Account created successfully!');
-      navigate('/login'); // Redirect to login page (adjust route if needed)
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Erro ao criar conta');
+        }
+
+        alert('Account created successfully!');
+        navigate('/login');
+
+      } catch (error) {
+        alert(error.message);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -125,6 +149,18 @@ const Register = () => {
 
             <Grid item xs={12}>
               <TextField
+                label="Address"
+                name="address"
+                fullWidth
+                value={form.address}
+                onChange={handleChange}
+                error={!!errors.address}
+                helperText={errors.address}
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <TextField
                 label="Password"
                 name="password"
                 type="password"
@@ -159,8 +195,9 @@ const Register = () => {
               backgroundColor: '#1976d2',
               fontWeight: 'bold'
             }}
+            disabled={loading}
           >
-            Register
+            {loading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : 'Register'}
           </Button>
         </Box>
       </Paper>
