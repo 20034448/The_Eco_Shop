@@ -1,4 +1,4 @@
-import { Route, Routes, Navigate } from 'react-router-dom';
+import { Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import './App.css';
 import Login from './pages/Login';
 import Home from './pages/home';
@@ -19,38 +19,37 @@ import Scrolltotop from './components/Scrolltotop';
 import { useState, useEffect } from 'react';
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("user"));
+  const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem("user"));
+  const location = useLocation();
 
   useEffect(() => {
-    const handleStorageChange = () => {
+    const checkLogin = () => {
       setIsLoggedIn(!!localStorage.getItem("user"));
     };
-
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
-  }, []);
+    checkLogin();
+  }, [location]);
 
   return (
     <>
-    <Scrolltotop />
+      <Scrolltotop />
       <Routes>
-        <Route path="/receipt" element={<Receipt />} />
-        <Route path="/logout" element={<Logout />} />
-        <Route path="/about" element={<About/>} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/privacy" element={<Privacy />} />
         <Route path="/" element={isLoggedIn ? <Navigate to="/home" /> : <Login />} />
-        <Route path="/login" element={isLoggedIn ? <Navigate to="/Home" /> : <Login />} />
+        <Route path="/login" element={isLoggedIn ? <Navigate to="/home" /> : <Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/home" element={isLoggedIn ? <Home /> : <Navigate to="/login" />} />
         <Route path="/products" element={isLoggedIn ? <Products /> : <Navigate to="/login" />} />
-        <Route path="/products/:id" element={<ItemDetails />} />
+        <Route path="/products/:id" element={isLoggedIn ? <ItemDetails /> : <Navigate to="/login" />} />
         <Route path="/product/:id" element={isLoggedIn ? <ItemDetails /> : <Navigate to="/login" />} />
         <Route path="/how-it-works" element={isLoggedIn ? <HowItWorks /> : <Navigate to="/login" />} />
         <Route path="/faqs" element={isLoggedIn ? <FAQs /> : <Navigate to="/login" />} />
         <Route path="/cart" element={isLoggedIn ? <Cart /> : <Navigate to="/login" />} />
         <Route path="/payment" element={isLoggedIn ? <Payment /> : <Navigate to="/login" />} />
         <Route path="/profile" element={isLoggedIn ? <Profile /> : <Navigate to="/login" />} />
+        <Route path="/receipt" element={<Receipt />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/logout" element={<Logout />} />
       </Routes>
     </>
   );

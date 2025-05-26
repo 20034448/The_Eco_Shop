@@ -68,36 +68,37 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (validate()) {
-      setLoading(true);
-      const userProfile = {
-        name: form.name,
-        phone: form.phone,
-        email: form.email,
-        address: form.address,
-        password: form.password,
-      };
+    if (!validate()) return;
 
-      try {
-        const response = await fetch('http://localhost:3000/api/users', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(userProfile),
-        });
+    setLoading(true);
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Erro ao criar conta');
-        }
+    try {
+      // Aqui usa a variável de ambiente VITE_API_URL + rota correta do backend (/api/register)
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: form.name,
+          phone: form.phone,
+          email: form.email,
+          address: form.address,
+          password: form.password,
+        }),
+      });
 
+      const data = await response.json();
+
+      if (response.ok && data.success) {
         alert('Account created successfully!');
         navigate('/login');
-
-      } catch (error) {
-        alert(error.message);
-      } finally {
-        setLoading(false);
+      } else {
+        alert(data.message || 'Erro ao criar conta');
       }
+    } catch (error) {
+      alert('Erro ao conectar com o servidor.');
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 

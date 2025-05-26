@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt');
 // GET /users
 router.get('/', async (req, res) => {
   try {
-    const [rows] = await db.query('SELECT * FROM User');
+    const [rows] = await db.query('SELECT * FROM Users');
     res.json(rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -27,7 +27,7 @@ router.post('/', async (req, res) => {
     const password_hash = await bcrypt.hash(password, saltRounds);
 
     const sql = `
-      INSERT INTO User (name, email, phone, address, password_hash)
+      INSERT INTO Users (name, email, phone, address, password_hash)
       VALUES (?, ?, ?, ?, ?)
     `;
 
@@ -52,7 +52,7 @@ router.put('/:id', async (req, res) => {
 
   try {
     const sql = `
-      UPDATE User
+      UPDATE Users
       SET name = ?, email = ?, phone = ?, address = ?
       WHERE user_id = ?
     `;
@@ -73,7 +73,7 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    const [result] = await db.query('DELETE FROM User WHERE user_id = ?', [id]);
+    const [result] = await db.query('DELETE FROM Users WHERE user_id = ?', [id]);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: 'User not found' });

@@ -17,20 +17,45 @@ const Login = () => {
     setError('');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
 
-    const stored = JSON.parse(localStorage.getItem('profile'));
+    // Validação simples
+    if (!form.email || !form.password) {
+      setError('Por favor, preencha email e senha.');
+      return;
+    }
 
-    if (
-      stored &&
-      form.email === stored.email &&
-      form.password === stored.password
-    ) {
-      localStorage.setItem('user', JSON.stringify(stored));
-      navigate('/home'); // redirect after login
-    } else {
-      setError('Invalid email or password.');
+    try {
+      console.log('Enviando login para:', `${import.meta.env.VITE_API_URL}/login`);
+      console.log('Dados enviados:', form);
+
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        // removido credentials para evitar problemas com cookies
+        body: JSON.stringify({
+          email: form.email,
+          password: form.password
+        }),
+      });
+
+      console.log('Status da resposta:', response.status);
+
+      const data = await response.json();
+
+      console.log('Resposta do servidor:', data);
+
+      if (response.ok && data.success) {
+        localStorage.setItem('user', JSON.stringify(data.user)); // chave ajustada para 'user'
+        navigate('/home'); // redireciona após login
+      } else {
+        setError(data.message || 'Email ou senha inválidos.');
+      }
+    } catch (err) {
+      setError('Erro ao conectar com o servidor.');
+      console.error(err);
     }
   };
 
@@ -79,7 +104,6 @@ const Login = () => {
             Login
           </Button>
 
-          {/* Aqui vem o texto/link para registro */}
           <Typography variant="body2" align="center" sx={{ mt: 3 }}>
             Don't have an account?{' '}
             <MuiLink component={Link} to="/register" underline="hover" sx={{ cursor: 'pointer' }}>
