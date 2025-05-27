@@ -47,7 +47,7 @@ const Cart = () => {
   };
 
   const handleBackToShop = () => {
-    navigate('/products'); // Adjust to your actual products route
+    navigate('/Products');
   };
 
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -65,9 +65,35 @@ const Cart = () => {
         </Typography>
 
         {cart.length === 0 ? (
-          <Typography align="center" variant="h6" sx={{ mt: 4, color: 'text.secondary' }}>
-            Your cart is currently empty. Explore products to add some!
+        <Box textAlign="center" sx={{ mt: 6 }}>
+          <Box
+            component="img"
+            src={EcoBannerImage}
+            alt="Eco Friendly Living"
+            sx={{ width: 200, height: 200, mx: "auto", mb: 3 }}
+          />
+          <Typography variant="h6" color="text.secondary" gutterBottom>
+            Your cart is currently empty.
           </Typography>
+          <Button
+            variant="contained"
+            onClick={handleBackToShop}
+            sx={{
+              mt: 2,
+              backgroundColor: "#357960",
+              textTransform: "none",
+              fontWeight: 600,
+              px: 4,
+              py: 1.2,
+              "&:hover": {
+                backgroundColor: "#2e6b52"
+              }
+            }}
+          >
+            Browse Products
+          </Button>
+        </Box>
+
         ) : (
           <>
             <Box 

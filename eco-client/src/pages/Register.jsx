@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
   const navigate = useNavigate();
+  const API_base_url = import.meta.env.VITE_APP_API_URL || "http://localhost:3000";
   const [form, setForm] = useState({
     name: '',
     phone: '',
@@ -73,8 +74,7 @@ const Register = () => {
     setLoading(true);
 
     try {
-      // Aqui usa a variável de ambiente VITE_API_URL + rota correta do backend (/api/register)
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/register`, {
+      const response = await fetch(`${API_base_url}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -92,10 +92,10 @@ const Register = () => {
         alert('Account created successfully!');
         navigate('/login');
       } else {
-        alert(data.message || 'Erro ao criar conta');
+        alert(data.message || 'Error creating account.');
       }
     } catch (error) {
-      alert('Erro ao conectar com o servidor.');
+      alert('Error connecting to the server.');
       console.error(error);
     } finally {
       setLoading(false);
