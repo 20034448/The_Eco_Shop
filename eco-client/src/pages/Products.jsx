@@ -1,0 +1,212 @@
+import React, { useState, useEffect } from 'react';
+import { TextField, Grid, Card, CardContent, Typography, CardMedia, Chip, Box, Button } from '@mui/material';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+
+const productsData = [
+  { id: 1, title: "Recycled Ocean Plastic T-Shirt", description: "Made from plastic bottles collected from the ocean.", image: "/images/01.jpg", category: "Men's Clothing", price: 29.99 },
+  { id: 2, title: "Organic Cotton Hoodie", description: "Soft, breathable hoodie made from 100% organic cotton.", image: "/images/02.png", category: "Men's Clothing", price: 49.99 },
+  { id: 3, title: "Bamboo Fiber Shorts", description: "Eco-friendly and antibacterial material.", image: "/images/03.png", category: "Men's Clothing", price: 34.99 },
+  { id: 4, title: "Mushroom Leather Jacket", description: "Innovative jacket made from mushroom roots.", image: "/images/04.png", category: "Men's Clothing", price: 120.00 },
+  { id: 5, title: "Hemp Denim Jeans", description: "Durable jeans made from sustainable hemp.", image: "/images/05.png", category: "Men's Clothing", price: 59.99 },
+  { id: 6, title: "Upcycled Silk Blouse", description: "Created from discarded silk fabrics.", image: "/images/06.jpeg", category: "Women's Clothing", price: 45.00 },
+  { id: 7, title: "Eco Wool Coat", description: "Sustainably sourced wool for a warm, ethical winter.", image: "/images/07.png", category: "Women's Clothing", price: 150.00 },
+  { id: 8, title: "Cactus Leather Handbag", description: "Stylish and cruelty-free alternative to leather.", image: "/images/08.png", category: "Women's Clothing", price: 80.00 },
+  { id: 9, title: "Linen Dress", description: "Made with flax plants requiring minimal water.", image: "/images/09.jpg", category: "Women's Clothing", price: 55.00 },
+  { id: 10, title: "Tencel Lounge Pants", description: "Soft, sustainable, and biodegradable material.", image: "/images/010.png", category: "Women's Clothing", price: 38.00 },
+  { id: 11, title: "Organic Vegan Protein Powder", description: "Plant-based protein from sustainable farming.", image: "/images/011.png", category: "Food", price: 25.00 },
+  { id: 12, title: "Compostable Tea Bags", description: "Zero-waste herbal tea packed in compostable materials.", image: "/images/012.png", category: "Food", price: 12.50 },
+  { id: 13, title: "Regenerative Farm Honey", description: "Honey harvested from pollinator-friendly farms.", image: "/images/013.png", category: "Food", price: 18.00 },
+  { id: 14, title: "Fair Trade Coffee Beans", description: "Supporting small farmers with ethical practices.", image: "/images/014.png", category: "Food", price: 15.00 },
+  { id: 15, title: "Zero-Waste Snack Packs", description: "Nutrient-packed snacks in reusable packaging.", image: "/images/015.png", category: "Food", price: 8.00 },
+  { id: 16, title: "Bamboo Toothbrush Set", description: "Biodegradable and compostable alternative.", image: "/images/016.png", category: "Homeware", price: 14.00 },
+  { id: 17, title: "Solar Powered Lamp", description: "Bright light powered entirely by the sun.", image: "/images/017.png", category: "Homeware", price: 40.00 },
+  { id: 18, title: "Recycled Glass Tumblers", description: "Handcrafted using 100% recycled glass.", image: "/images/018.png", category: "Homeware", price: 22.00 },
+  { id: 19, title: "Compost Bin", description: "Sleek design for your eco kitchen waste.", image: "/images/019.png", category: "Homeware", price: 60.00 },
+  { id: 20, title: "Organic Cotton Towels", description: "Soft, absorbent, and free of harmful chemicals.", image: "/images/020.png", category: "Homeware", price: 35.00 },
+  { id: 21, title: "Eco-Friendly Yoga Mat", description: "Made from natural rubber and non-toxic dyes, this mat offers excellent grip and comfort.", image: "/images/021.png", category: "Homeware", price: 45.00 }
+];
+
+const categoryMap = {
+  mens: "Men's Clothing",
+  womens: "Women's Clothing",
+  food: "Food",
+  homeware: "Homeware",
+};
+
+const categories = [
+  { key: 'all', label: 'All' },
+  { key: 'mens', label: "Men's Clothing" },
+  { key: 'womens', label: "Women's Clothing" },
+  { key: 'food', label: "Food" },
+  { key: 'homeware', label: "Homeware" },
+];
+
+const useQuery = () => {
+  return new URLSearchParams(useLocation().search);
+};
+
+const Products = () => {
+  const navigate = useNavigate();
+  const query = useQuery();
+  const searchTerm = query.get('search')?.toLowerCase() || '';
+  const categoryParam = query.get('category') || 'all';
+  const [search, setSearch] = useState(searchTerm);
+  const [selectedCategory, setSelectedCategory] = useState(categoryParam);
+  const [filtered, setFiltered] = useState([]);
+
+  useEffect(() => {
+    let results = productsData;
+
+    if (selectedCategory !== 'all' && categoryMap[selectedCategory]) {
+      results = results.filter(
+        (product) => product.category === categoryMap[selectedCategory]
+      );
+    }
+
+    if (search) {
+      results = results.filter((product) =>
+        product.title.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+
+    setFiltered(results);
+  }, [search, selectedCategory]);
+
+  // Atualiza URL ao mudar categoria para manter estado na URL
+  const handleCategoryChange = (categoryKey) => {
+    setSelectedCategory(categoryKey);
+    const params = new URLSearchParams();
+    if (search) params.set('search', search);
+    if (categoryKey !== 'all') params.set('category', categoryKey);
+    else params.delete('category');
+
+    navigate(`/products?${params.toString()}`);
+  };
+
+  return (
+    <>
+      <Navbar />
+      <Box>
+        <Card sx={{ mb: 1.5, mt: 4 }}>
+          <CardContent>
+            <Typography variant="h5" gutterBottom>The Eco Shop</Typography>
+            <Typography variant="body1">Free deliveries over €100</Typography>
+            <Typography variant="body2">
+              Becoming more eco-conscious is simple when you choose the right products.
+            </Typography>
+          </CardContent>
+        </Card>
+
+        {/* Barra de categorias */}
+        <Box sx={{ mb: 3, display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'center' }}>
+          {categories.map(({ key, label }) => (
+            <Button
+              key={key}
+              onClick={() => handleCategoryChange(key)}
+              sx={{ backgroundColor: '#76c7c0', color: 'white', textTransform: 'none', fontWeight: 600, '&:hover': {
+                backgroundColor: '#5db0aa'
+                },
+              }}
+                aria-pressed={selectedCategory === key}
+              >
+                {label}
+            </Button>
+          ))}
+        </Box>
+
+        {/* Barra de busca */}
+        <Box sx={{ mb: 4, maxWidth: 948, mx: 'auto'}}>
+          <TextField
+            fullWidth
+            label="Search Products"
+            variant="outlined"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                // Atualiza a URL com a busca ao pressionar Enter
+                const params = new URLSearchParams();
+                if (search) params.set('search', search);
+                if (selectedCategory !== 'all') params.set('category', selectedCategory);
+                navigate(`/products?${params.toString()}`);
+              }
+            }}
+          />
+        </Box>
+
+        {/* Lista de produtos */}
+        <Box
+          sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            gap: 3,
+            px: 2,
+            py: 4,
+          }}
+        >
+          {filtered.length === 0 && (
+            <Typography variant="h6" sx={{ mt: 4, color: 'text.secondary' }}>
+              No products found.
+            </Typography>
+          )}
+          {filtered.map(({ id, title, description, image, category, price }) => (
+            <Box
+              key={id}
+              sx={{
+                flex: '1 1 300px',
+                maxWidth: '300px',
+                display: 'flex',
+                flexDirection: 'column',
+                borderRadius: 2,
+                boxShadow: 3,
+                transition: 'transform 0.3s ease',
+                '&:hover': { transform: 'scale(1.05)' },
+              }}
+            >
+              <Link to={`/Products/${id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <CardMedia
+                  component="img"
+                  image={image}
+                  alt={title}
+                  sx={{
+                    width: '100%',
+                    height: 200,
+                    objectFit: 'cover',
+                    borderRadius: '8px 8px 0 0',
+                  }}
+                />
+                <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+                  <Typography variant="h6" fontWeight="bold" gutterBottom noWrap>
+                    {title}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ flexGrow: 1 }}>
+                    {description}
+                  </Typography>
+                  <Typography variant="body2">€{price.toFixed(2)}</Typography>
+                  <Chip
+                    label={category}
+                    size="small"
+                    sx={{
+                      mt: 1,
+                      alignSelf: 'center',
+                      backgroundColor: '#76c7c0',
+                      color: 'white',
+                      fontWeight: 'bold',
+                    }}
+                  />
+                </CardContent>
+              </Link>
+            </Box>
+          ))}
+        </Box>
+      </Box>
+      <Footer />
+       </>
+  );
+};
+
+export default Products;
+   
