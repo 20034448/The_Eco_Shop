@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import {Box, Typography, TextField, Button, Grid, List, ListItem, ListItemText, IconButton, Paper} from "@mui/material";
+import {Box,Typography, TextField,Button,Grid,List,ListItem,ListItemText,IconButton,Paper} from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import axios from "axios";
-import { desc } from "framer-motion/client";
+
+const API_base_url = import.meta.env.VITE_APP_API_URL || "http://localhost:3000";
 
 export default function ProductAdmin() {
   const [products, setProducts] = useState([]);
@@ -11,70 +11,104 @@ export default function ProductAdmin() {
   const [imageUrl, setImageUrl] = useState("");
   const [category, setCategory] = useState("");
   const [price, setPrice] = useState("");
-  
+
+  const getToken = () => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    return user?.token || "";
+  };
+
   const fetchProducts = async () => {
-    const token = localStorage.getItem("token");
-    const res = await axios.get("http://localhost:8080/api/Products", {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    setProducts(res.data);
+    try {
+      const res = await fetch(`${API_base_url}/Products`, {
+        headers: {
+          Authorization: `Bearer ${getToken()}`
+        }
+      });
+      const data = await res.json();
+      setProducts(data);
+    } catch (err) {
+      console.error("Failed to fetch products", err);
+    }
+  };
+
+  const handleAddProduct = async () => {
+    if (!title || !description || !category || !price) return;
+
+    try {
+      await fetch(`${API_base_url}/Products`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`
+        },
+        body: JSON.stringify({
+          title,
+          description,
+          imageUrl,
+          category,
+          price: Number(price)
+        })
+      });
+      setTitle("");
+      setDescription("");
+      setImageUrl("");
+      setCategory("");
+      setPrice("");
+      fetchProducts();
+    } catch (err) {
+      console.error("Failed to add product", err);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await fetch(`${API_base_url}/Products/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${getToken()}`
+        }
+      });
+      fetchProducts();
+    } catch (err) {
+      console.error("Failed to delete product", err);
+    }
   };
 
   useEffect(() => {
     fetchProducts();
   }, []);
 
-  const handleAddProduct = async () => {
-    if (!title || !description || !category || !price) return;
-    const token = localStorage.getItem("token");
-    await axios.post("http://localhost:8080/api/Products", {
-      title,
-      description,
-      imageUrl,
-      category,
-      price: Number(price),
-      
-    }, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    setTitle(""); setDescription(""); setImageUrl("");  setCategory(""); setPrice("");
-    fetchProducts();
-  };
-
-  const handleDelete = async (id) => {
-    const token = localStorage.getItem("token");
-    await axios.delete(`http://localhost:8080/api/Products/${id}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    fetchProducts();
-  };
-
   return (
-    <Box sx={{ p: 4 }}>
-      <Typography variant="h5" gutterBottom>
-        Manage Products
+    <Box sx={{ p: 4, maxWidth: "1000px", mx: "auto" }}>
+      <Typography variant="h5" color="#357960" gutterBottom>
+        Admin: Manage Products
       </Typography>
 
       <Grid container spacing={2} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={3}>
+        <Grid item xs={12} sm={4}>
           <TextField fullWidth label="Product Name" value={title} onChange={(e) => setTitle(e.target.value)} />
         </Grid>
-        <Grid item xs={12} sm={3}>
-          <TextField fullWidth label="Product Description" value={description} onChange={(e) => setDescription(e.target.value)} />
+        <Grid item xs={12} sm={4}>
+          <TextField fullWidth label="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
         </Grid>
-        <Grid item xs={12} sm={3}>
+        <Grid item xs={12} sm={4}>
           <TextField fullWidth label="Image URL" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
         </Grid>
-        <Grid item xs={12} sm={3}>
+        <Grid item xs={12} sm={4}>
           <TextField fullWidth label="Category" value={category} onChange={(e) => setCategory(e.target.value)} />
         </Grid>
-        <Grid item xs={12} sm={2}>
+        <Grid item xs={12} sm={3}>
           <TextField fullWidth label="Price (€)" type="number" value={price} onChange={(e) => setPrice(e.target.value)} />
         </Grid>
-        
-        
-        <Grid item xs={12} sm={1}>
-          <Button fullWidth variant="contained" onClick={handleAddProduct}>Add</Button>
+        <Grid item xs={12} sm={2}>
+          <Button
+            fullWidth
+            variant="contained"
+            onClick={handleAddProduct}
+            sx={{ backgroundColor: "#357960", color: "white" }}
+          >
+            Add
+          </Button>
         </Grid>
       </Grid>
 
@@ -88,6 +122,7 @@ export default function ProductAdmin() {
                   <DeleteIcon />
                 </IconButton>
               }
+              sx={{ borderBottom: "1px solid #eee" }}
             >
               <ListItemText
                 primary={`${product.title} - €${product.price}`}
