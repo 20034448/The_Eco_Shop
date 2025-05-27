@@ -17,6 +17,8 @@ import Contact from './pages/Contact';
 import Privacy from './pages/Privacy';
 import Scrolltotop from './components/Scrolltotop';
 import { useState, useEffect } from 'react';
+import RequireAuth from './components/RequireAuth';
+import React from 'react';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem("user"));
@@ -33,23 +35,44 @@ function App() {
     <>
       <Scrolltotop />
       <Routes>
-        <Route path="/" element={isLoggedIn ? <Navigate to="/home" /> : <Login />} />
-        <Route path="/login" element={isLoggedIn ? <Navigate to="/home" /> : <Login />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/home" element={isLoggedIn ? <Home /> : <Navigate to="/login" />} />
-        <Route path="/products" element={isLoggedIn ? <Products /> : <Navigate to="/login" />} />
-        <Route path="/products/:id" element={isLoggedIn ? <ItemDetails /> : <Navigate to="/login" />} />
-        <Route path="/product/:id" element={isLoggedIn ? <ItemDetails /> : <Navigate to="/login" />} />
-        <Route path="/how-it-works" element={isLoggedIn ? <HowItWorks /> : <Navigate to="/login" />} />
-        <Route path="/faqs" element={isLoggedIn ? <FAQs /> : <Navigate to="/login" />} />
-        <Route path="/cart" element={isLoggedIn ? <Cart /> : <Navigate to="/login" />} />
-        <Route path="/payment" element={isLoggedIn ? <Payment /> : <Navigate to="/login" />} />
-        <Route path="/profile" element={isLoggedIn ? <Profile /> : <Navigate to="/login" />} />
+        <Route path="/products" element={<Products />} />
+        <Route path="/products/:id" element={<ItemDetails />} />
+        <Route path="/product/:id" element={<ItemDetails />} />
+        <Route path="/how-it-works" element={<HowItWorks />} />
+        <Route path="/faqs" element={<FAQs />} />
+        <Route
+          path="/profile"
+          element={
+            <RequireAuth>
+              <Profile />
+            </RequireAuth>
+          }
+        />
         <Route path="/receipt" element={<Receipt />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/logout" element={<Logout />} />
+        <Route
+          path="/payment"
+          element={
+            <RequireAuth>
+              <Payment />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/cart"
+          element={
+            <RequireAuth>
+              <Cart />
+            </RequireAuth>
+          }
+        />
       </Routes>
     </>
   );
